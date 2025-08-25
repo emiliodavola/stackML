@@ -20,3 +20,4 @@ config/grafana/**
 
 # Jupyter checkpoints
 notebooks/**/.ipynb_checkpoints/
+notebooks/work/.Trash-0
