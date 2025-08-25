@@ -1,20 +1,23 @@
 # Notebooks
 
-Esta carpeta contiene los notebooks y la imagen para ejecutar Jupyter.
 
-Opciones disponibles desde `docker-compose`:
+Esta carpeta contiene dos subcarpetas y las imágenes para ejecutar Jupyter:
 
-- `marimo` (profile: `marimo`): imagen ligera con Jupyter y configuraciones de experimentación (equivalente al antiguo "marimo").
-- `jupyter` (profile: `jupyter` o `dev`): imagen oficial basada en `python:3.12-slim` o imagen de Jupyter (según configuración en `docker-compose.yml`).
+- `notebooks/marimo` - Dockerfile y contenidos para la opción `marimo`.
+- `notebooks/jupyter` - Dockerfile y contenidos para la opción `jupyter`.
 
-Para levantar la opción `marimo`:
+Comandos para levantar cada opción desde la raíz del repo:
+
+Para levantar `marimo`:
 
 ```powershell
 docker compose --profile marimo up -d marimo
 ```
 
-Para levantar la opción `jupyter` (dev):
+Para levantar `jupyter`:
 
 ```powershell
-docker compose --profile dev up -d jupyter
+docker compose --profile jupyter up -d jupyter
 ```
+
+Los notebooks de usuario pueden guardarse en `notebooks/work` si quieres que sean compartidos entre ambas imágenes.
