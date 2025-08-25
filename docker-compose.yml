@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   minio:
     image: ${MINIO_IMAGE}
@@ -30,6 +28,9 @@ services:
       - "${GRAFANA_PORT}:3000"
     volumes:
       - ./config/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
     depends_on:
       - prometheus
 
@@ -61,26 +62,29 @@ services:
 
   marimo:
     build:
-      context: ./marimo
+      context: ./notebooks/marimo
       dockerfile: Dockerfile
     container_name: marimo
     ports:
-      - "8888:8888"
+      - "2718:2718"
     volumes:
-      - ./marimo:/app
-    command: jupyter notebook --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token=''
+      - ./notebooks/work:/app
+    command: ["marimo", "edit", "/app", "--host", "0.0.0.0", "--port", "2718", "--no-token"]
     depends_on:
       - mlflow
+    profiles: ["marimo"]
 
   jupyter:
-    image: ${MLFLOW_IMAGE}
+    build:
+      context: ./notebooks/jupyter
+      dockerfile: Dockerfile
     container_name: jupyter
     ports:
-      - "8889:8888"
+      - "8888:8888"
     volumes:
-      - ./notebooks:/home/jovyan/work
-    command: start-notebook.sh --NotebookApp.token=''
-    profiles: ["dev"]
+      - ./notebooks/work:/home/jovyan/work
+    command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token= --ServerApp.password= --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
+    profiles: ["jupyter", "dev"]
 
   api:
     build:

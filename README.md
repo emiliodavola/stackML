@@ -1,6 +1,6 @@
 # stackML (propuesta de nombre)
 
-Este repositorio contiene un docker-compose versionado para levantar servicios comunes de MLOps: mlflow, minio, grafana, prometheus, marimo (Jupyter), elasticsearch y una API para servir modelos on-demand.
+Este repositorio contiene un docker-compose versionado para levantar servicios comunes de MLOps: mlflow, minio, grafana, prometheus, notebooks (opciones `marimo` o `jupyter`), elasticsearch y una API para servir modelos on-demand.
 
 Nombre propuesto: `stackML` — corto, descriptivo y orientado a una pila completa (stack) para ML. Alternativas: `mlStack`, `mlops-stack`.
 
@@ -22,7 +22,7 @@ Archivos creados:
 
 - `mlflow/Dockerfile` - imagen para mlflow server.
 
-- `marimo/Dockerfile` - imagen con jupyter.
+- `notebooks/Dockerfile` - imagen con jupyter (opción `marimo`).
 
 - `api/Dockerfile`, `api/server.py` - API FastAPI minimal.
 

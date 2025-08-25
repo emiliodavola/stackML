@@ -1,0 +1,24 @@
+polars>=0.19
+duckdb>=0.8
+openai>=1.0.0
+scikit-learn>=1.2
+pandas>=2.0
+altair>=4.2
+matplotlib>=3.6
+seaborn>=0.13
+ipykernel
+notebook>=7
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch
+torchvision
+statsmodels>=0.14
+lightgbm>=3.3
+catboost>=1.2
+xgboost>=1.7
+mlforecast
+statsforecast
+neuralforecast
+hierarchicalforecast
+utilsforecast
+datasetsforecast
+coreforecast
