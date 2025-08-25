@@ -6,4 +6,16 @@ pandas>=2.0
 altair>=4.2
 matplotlib>=3.6
 seaborn>=0.13
-ipykernel
+marimo[recommended]
+python-lsp-server
+websockets
+pytest
+nbformat
+ruff
+vegafusion
+vl-convert-python
+ty
+basedpyright
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch
+torchvision
