@@ -1,0 +1,5 @@
+# Ignore everything in this folder by default
+*
+!.gitignore
+!README.md
+!provisioning/
