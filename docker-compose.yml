@@ -61,16 +61,17 @@ services:
 
   marimo:
     build:
-      context: ./marimo
+      context: ./notebooks
       dockerfile: Dockerfile
     container_name: marimo
     ports:
       - "8888:8888"
     volumes:
-      - ./marimo:/app
+      - ./notebooks:/app
     command: jupyter notebook --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token=''
     depends_on:
       - mlflow
+    profiles: ["marimo"]
 
   jupyter:
     image: ${MLFLOW_IMAGE}
@@ -80,7 +81,7 @@ services:
     volumes:
       - ./notebooks:/home/jovyan/work
     command: start-notebook.sh --NotebookApp.token=''
-    profiles: ["dev"]
+    profiles: ["jupyter", "dev"]
 
   api:
     build:
