@@ -1,8 +1,24 @@
 venv/
 __pycache__/
 .pytest_cache/
-.env
-data/*
+data/**
+!data/.gitkeep
+!data/**/.gitkeep
 mlflow/mlflow.db
 *.pyc
 node_modules/
+mlruns/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Grafana persistent state (keep provisioning and docs)
+config/grafana/**
+!config/grafana/.gitignore
+!config/grafana/README.md
+!config/grafana/provisioning/**
+!config/grafana/**/.gitkeep
+
+# Jupyter checkpoints
+notebooks/**/.ipynb_checkpoints/
+notebooks/work/.Trash-0
