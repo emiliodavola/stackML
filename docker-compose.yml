@@ -52,6 +52,10 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
@@ -68,13 +72,18 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./data/mlflow:/mlflow
-      - ./data/mlflow/artifacts:/mlflow/artifacts
-      - ./data/mlflow/backend:/mlflow/backend
+      - mlflow_data:/mlflow
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
-      - MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow/backend/mlflow.db
+      - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow.db
       - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    command: >
+      mlflow server 
+      --host 0.0.0.0 
+      --port 5000 
+      --backend-store-uri sqlite:////mlflow/mlflow.db 
+      --default-artifact-root /mlflow/artifacts 
+      --serve-artifacts
     depends_on:
       - minio
     restart: unless-stopped
@@ -92,7 +101,6 @@ services:
     command: ["marimo", "edit", "/app", "--host", "0.0.0.0", "--port", "2718", "--no-token"]
     depends_on:
       - mlflow
-    profiles: ["marimo"]
     restart: unless-stopped
 
   jupyter:
@@ -109,7 +117,6 @@ services:
     command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token= --ServerApp.password= --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
     environment:
       - JUPYTER_ENABLE_LAB=yes
-    profiles: ["jupyter", "dev"]
     restart: unless-stopped
 
   api:
@@ -121,8 +128,10 @@ services:
       - "8000:8000"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
-    profiles: ["on-demand"]
 
 networks:
   default:
     name: ${COMPOSE_PROJECT_NAME}_network
+
+volumes:
+  mlflow_data:
