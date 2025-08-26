@@ -1,4 +1,4 @@
-# stackML (propuesta de nombre)
+# stackML
 
 Este repositorio contiene un docker-compose versionado para levantar servicios comunes de MLOps: mlflow, minio, grafana, prometheus, notebooks (opciones `marimo` o `jupyter`), elasticsearch y una API para servir modelos on-demand.
 
