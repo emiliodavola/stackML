@@ -11,6 +11,7 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - ./data/minio:/data
+    restart: unless-stopped
 
   prometheus:
     image: ${PROMETHEUS_IMAGE}
@@ -18,8 +19,16 @@ services:
     ports:
       - "${PROMETHEUS_PORT}:9090"
     volumes:
-      - ./config/prometheus:/etc/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yml
+      - ./config/prometheus:/etc/prometheus:ro
+      - ./data/prometheus:/prometheus
+    command: 
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
 
   grafana:
     image: ${GRAFANA_IMAGE}
@@ -27,12 +36,16 @@ services:
     ports:
       - "${GRAFANA_PORT}:3000"
     volumes:
-      - ./config/grafana:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./data/grafana:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
+    restart: unless-stopped
 
   elasticsearch:
     image: ${ELASTIC_IMAGE}
@@ -40,10 +53,12 @@ services:
     environment:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "${ELASTIC_PORT}:9200"
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
+    restart: unless-stopped
 
   mlflow:
     build:
@@ -53,12 +68,16 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./mlflow:/app
       - ./data/mlflow:/mlflow
+      - ./data/mlflow/artifacts:/mlflow/artifacts
+      - ./data/mlflow/backend:/mlflow/backend
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow/backend/mlflow.db
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
     depends_on:
       - minio
+    restart: unless-stopped
 
   marimo:
     build:
@@ -69,10 +88,12 @@ services:
       - "2718:2718"
     volumes:
       - ./notebooks/work:/app
+      - ./data/marimo:/home/marimo/.local/share/marimo
     command: ["marimo", "edit", "/app", "--host", "0.0.0.0", "--port", "2718", "--no-token"]
     depends_on:
       - mlflow
     profiles: ["marimo"]
+    restart: unless-stopped
 
   jupyter:
     build:
@@ -83,8 +104,13 @@ services:
       - "8888:8888"
     volumes:
       - ./notebooks/work:/home/jovyan/work
+      - ./data/jupyter:/home/jovyan/.jupyter
+      - ./data/jupyter/lab:/home/jovyan/.local/share/jupyter/lab
     command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token= --ServerApp.password= --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
     profiles: ["jupyter", "dev"]
+    restart: unless-stopped
 
   api:
     build:
