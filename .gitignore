@@ -4,6 +4,7 @@ __pycache__/
 .env
 data/**
 !data/.gitkeep
+!data/**/.gitkeep
 mlflow/mlflow.db
 *.pyc
 node_modules/
@@ -17,6 +18,7 @@ config/grafana/**
 !config/grafana/.gitignore
 !config/grafana/README.md
 !config/grafana/provisioning/**
+!config/grafana/**/.gitkeep
 
 # Jupyter checkpoints
 notebooks/**/.ipynb_checkpoints/
