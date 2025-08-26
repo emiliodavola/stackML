@@ -1,0 +1,11 @@
+# Archivo CODEOWNERS - Define quién puede aprobar cambios
+# Cada línea especifica un patrón de archivos y los propietarios del código
+
+# Owner principal del repositorio - requiere aprobación para TODOS los archivos
+* @emiliodavola
+
+# Configuraciones críticas - requieren aprobación especial
+.env @emiliodavola
+docker-compose.yml @emiliodavola
+*/Dockerfile @emiliodavola
+requirements.txt @emiliodavola
