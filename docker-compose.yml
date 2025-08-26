@@ -11,6 +11,7 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - ./data/minio:/data
+    restart: unless-stopped
 
   prometheus:
     image: ${PROMETHEUS_IMAGE}
@@ -18,8 +19,16 @@ services:
     ports:
       - "${PROMETHEUS_PORT}:9090"
     volumes:
-      - ./config/prometheus:/etc/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yml
+      - ./config/prometheus:/etc/prometheus:ro
+      - ./data/prometheus:/prometheus
+    command: 
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
 
   grafana:
     image: ${GRAFANA_IMAGE}
@@ -27,23 +36,33 @@ services:
     ports:
       - "${GRAFANA_PORT}:3000"
     volumes:
-      - ./config/grafana:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./data/grafana:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
+    restart: unless-stopped
 
   elasticsearch:
     image: ${ELASTIC_IMAGE}
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "${ELASTIC_PORT}:9200"
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
+    restart: unless-stopped
 
   mlflow:
     build:
@@ -53,12 +72,21 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./mlflow:/app
-      - ./data/mlflow:/mlflow
+      - mlflow_data:/mlflow
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow.db # Four slashes (////) specify an absolute path for SQLite DB inside the container
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    command: >
+      mlflow server 
+      --host 0.0.0.0 
+      --port 5000 
+      --backend-store-uri sqlite:////mlflow/mlflow.db # Four slashes (////) specify an absolute path for SQLite DB inside the container
+      --default-artifact-root /mlflow/artifacts 
+      --serve-artifacts
     depends_on:
       - minio
+    restart: unless-stopped
 
   marimo:
     build:
@@ -69,10 +97,11 @@ services:
       - "2718:2718"
     volumes:
       - ./notebooks/work:/app
+      - ./data/marimo:/home/marimo/.local/share/marimo
     command: ["marimo", "edit", "/app", "--host", "0.0.0.0", "--port", "2718", "--no-token"]
     depends_on:
       - mlflow
-    profiles: ["marimo"]
+    restart: unless-stopped
 
   jupyter:
     build:
@@ -83,8 +112,12 @@ services:
       - "8888:8888"
     volumes:
       - ./notebooks/work:/home/jovyan/work
+      - ./data/jupyter:/home/jovyan/.jupyter
+      - ./data/jupyter/lab:/home/jovyan/.local/share/jupyter/lab
     command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token= --ServerApp.password= --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
-    profiles: ["jupyter", "dev"]
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    restart: unless-stopped
 
   api:
     build:
@@ -95,8 +128,10 @@ services:
       - "8000:8000"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
-    profiles: ["on-demand"]
 
 networks:
   default:
     name: ${COMPOSE_PROJECT_NAME}_network
+
+volumes:
+  mlflow_data:
