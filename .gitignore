@@ -11,6 +11,7 @@ mlruns/
 .vscode/
 .DS_Store
 Thumbs.db
+.env
 
 # Grafana persistent state (keep provisioning and docs)
 config/grafana/**
