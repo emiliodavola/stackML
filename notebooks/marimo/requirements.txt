@@ -1,56 +1,194 @@
-polars>=0.19
-duckdb>=0.8
-openai>=1.0
-scikit-learn>=1.2
-pandas>=2.0
-altair>=4.2
-matplotlib>=3.6
-seaborn>=0.13
-marimo[recommended]
-python-lsp-server
-websockets
-pytest
-nbformat
-ruff
-vegafusion
-vl-convert-python
+# =============================================================================
+# MARIMO NOTEBOOK REQUIREMENTS
+# =============================================================================
+
+# Core Marimo
+marimo[recommended]>=0.6.0
+
+# Development Tools
+python-lsp-server>=1.7.0
+websockets>=11.0.0
+pytest>=7.4.0
+nbformat>=5.9.0
+ruff>=0.0.280
+basedpyright>=1.5.0
 ty
-basedpyright
 
-# File format support libraries
-openpyxl>=3.1.0  # Excel files (.xlsx)
-xlrd>=2.0.1      # Excel files (.xls)
-xlsxwriter>=3.0.0  # Write Excel files
-pyarrow>=10.0.0  # Parquet, Arrow, Feather files
-fastparquet>=0.8.0  # Alternative Parquet library
-fastavro>=1.7.0  # Avro files
-python-snappy>=0.6.0  # Snappy compression support
-h5py>=3.8.0      # HDF5 files
-tables>=3.8.0    # PyTables for HDF5
-sqlalchemy>=2.0.0  # Database connections
-psycopg2-binary>=2.9.0  # PostgreSQL
-pymongo>=4.0.0   # MongoDB
-redis>=4.5.0     # Redis
-lxml>=4.9.0      # XML/HTML parsing
-beautifulsoup4>=4.11.0  # HTML/XML parsing
-requests>=2.28.0  # HTTP requests
-jsonlines>=3.1.0  # JSON Lines format
-pyyaml>=6.0      # YAML files
-toml>=0.10.2     # TOML files
-configparser>=5.3.0  # INI/config files
+# Marimo Visualization
+vegafusion>=1.4.0
+vl-convert-python>=1.1.0
 
+# =============================================================================
+# DATA MANIPULATION & ANALYSIS
+# =============================================================================
+
+# Core Data Libraries
+pandas>=2.0.0
+polars>=0.19.0
+numpy>=1.24.0
+duckdb>=0.8.0
+
+# Specialized Data Tools
+pyarrow>=10.0.0        # Arrow format and Parquet
+fastparquet>=0.8.0     # Alternative Parquet library
+modin>=0.20.0          # Pandas on Ray/Dask
+
+# =============================================================================
+# VISUALIZATION & PLOTTING
+# =============================================================================
+
+# Core Plotting
+matplotlib>=3.6.0
+seaborn>=0.13.0
+plotly>=5.15.0
+altair>=4.2.0
+
+# Advanced Visualization
+bokeh>=3.2.0           # Interactive plots
+holoviews>=1.17.0      # High-level data visualization
+datashader>=0.15.0     # Large dataset visualization
+panel>=1.2.0           # Interactive dashboards
+
+# =============================================================================
+# MACHINE LEARNING & AI
+# =============================================================================
+
+# Core ML Libraries
+scikit-learn>=1.3.0
+scipy>=1.11.0
+
+# Gradient Boosting
+xgboost>=1.7.0
+lightgbm>=3.3.0
+catboost>=1.2.0
+
+# Deep Learning
 --extra-index-url https://download.pytorch.org/whl/cu126
-torch
-torchvision
-statsmodels>=0.14
-lightgbm>=3.3
-catboost>=1.2
-xgboost>=1.7
-mlforecast
-statsforecast
-neuralforecast
-hierarchicalforecast
-utilsforecast
-datasetsforecast
-coreforecast
-mlflow
+torch>=2.0.0
+torchvision>=0.15.0
+
+# AutoML & Advanced ML
+optuna>=3.3.0          # Hyperparameter optimization
+shap>=0.42.0           # Model explainability
+lime>=0.2.0            # Local model explanations
+mlxtend>=0.22.0        # ML extensions
+
+# =============================================================================
+# TIME SERIES & FORECASTING
+# =============================================================================
+
+# Nixtla Ecosystem
+mlforecast>=0.10.0
+statsforecast>=1.5.0
+neuralforecast>=1.6.0
+hierarchicalforecast>=0.4.0
+utilsforecast>=0.0.8
+datasetsforecast>=0.0.7
+coreforecast>=0.0.5
+
+# Traditional Time Series
+statsmodels>=0.14.0
+prophet>=1.1.0
+
+# =============================================================================
+# NATURAL LANGUAGE PROCESSING
+# =============================================================================
+
+# Core NLP
+nltk>=3.8.0
+spacy>=3.6.0
+textblob>=0.17.0
+gensim>=4.3.0
+
+# Transformers & Modern NLP
+transformers>=4.30.0
+tokenizers>=0.13.0
+datasets>=2.14.0
+sentence-transformers>=2.2.0
+
+# OpenAI & APIs
+openai>=1.0.0
+langchain>=0.0.250
+tiktoken>=0.4.0
+
+# =============================================================================
+# FILE FORMAT SUPPORT
+# =============================================================================
+
+# Excel & Spreadsheets
+openpyxl>=3.1.0        # Excel .xlsx
+xlrd>=2.0.1            # Excel .xls  
+xlsxwriter>=3.0.0      # Write Excel files
+
+# Binary & Compressed Formats
+h5py>=3.9.0            # HDF5 files
+tables>=3.8.0          # PyTables for HDF5
+python-snappy>=0.6.0   # Snappy compression
+feather-format>=0.4.1  # Feather format
+
+# Serialization & Config
+pyyaml>=6.0.0          # YAML files
+toml>=0.10.2           # TOML files
+configparser>=5.3.0    # INI/config files
+jsonlines>=3.1.0       # JSON Lines format
+
+# Audio & Video
+fastavro>=1.8.0        # Avro files
+pymediainfo>=6.0.0     # Media file info
+
+# =============================================================================
+# DATABASE CONNECTIVITY
+# =============================================================================
+
+# SQL Databases
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0 # PostgreSQL
+pymysql>=1.1.0         # MySQL
+
+# NoSQL Databases
+pymongo>=4.5.0         # MongoDB
+redis>=4.6.0           # Redis
+cassandra-driver>=3.28.0 # Cassandra
+
+# =============================================================================
+# BIG DATA & DISTRIBUTED COMPUTING
+# =============================================================================
+
+# Distributed Computing
+dask>=2023.7.0
+ray>=2.5.0
+pyspark>=3.4.0
+
+# =============================================================================
+# MLOps & EXPERIMENT TRACKING
+# =============================================================================
+
+# Experiment Tracking
+mlflow>=2.5.0
+wandb>=0.15.0
+neptune-client>=1.4.0
+
+# Model Serving & Deployment
+bentoml>=1.1.0
+streamlit>=1.25.0
+gradio>=3.37.0
+
+# =============================================================================
+# UTILITY & DEVELOPMENT
+# =============================================================================
+
+# Progress & Logging
+tqdm>=4.65.0
+loguru>=0.7.0
+
+# Configuration & Environment
+python-dotenv>=1.0.0
+hydra-core>=1.3.0
+
+# Profiling & Performance
+memory-profiler>=0.61.0
+line-profiler>=4.1.0
+py-spy>=0.3.0
+
+# Interactive Widgets (Marimo compatible)
+ipywidgets>=8.0.0
