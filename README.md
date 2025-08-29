@@ -8,19 +8,17 @@ Un stack completo de MLOps con Docker Compose que incluye servicios para experim
 
 - **MLflow** (puerto 5000) - Tracking de experimentos y registro de modelos
 - **MinIO** (puertos 9000/9001) - Almacenamiento de objetos compatible con S3
-- **Grafana** (puerto 3000) - Dashboards y visualización de métricas
-- **Prometheus** (puerto 9090) - Recolección y almacenamiento de métricas
-- **Elasticsearch** (puerto 9200) - Búsqueda y análisis de logs
 - **Marimo** (puerto 2718) - Notebooks interactivos modernos
 - **Jupyter** (puerto 8888) - Notebooks tradicionales de Jupyter
-- **API** - Servicio FastAPI para servir modelos (perfil `on-demand`)
+
+### Servicios On-Demand (requieren perfil específico)
+
+- **Grafana** (puerto 3000) - Dashboards y visualización de métricas
+- **Prometheus** (puerto 9090) - Recolección y almacenamiento de métricas  
+- **Elasticsearch** (puerto 9200) - Búsqueda y análisis de logs
+- **API** (puerto 8000) - Servicio FastAPI para servir modelos
 
 ## 🛠️ Configuración Rápida
-
-### Prerrequisitos
-
-- Docker y Docker Compose
-- Mínimo 8GB RAM recomendado
 
 ### Inicio Rápido
 
@@ -31,21 +29,35 @@ git clone <repository-url>
 cd stackML
 ```
 
-2. **Levantar todos los servicios:**
+2. **Crear archivo de configuración:**
+
+Crea un archivo `.env` usando el template de la sección [Variables de Entorno](#variables-de-entorno-env).
+
+3. **Levantar servicios básicos:**
 
 ```bash
 docker compose up -d
 ```
 
-3. **Acceder a los servicios:**
+4. **Levantar todos los servicios (incluyendo on-demand):**
 
-- MLflow: http://localhost:5000
-- Grafana: http://localhost:3000 (admin: `grafanaadmin` / `grafanaadmin`)
-- MinIO Console: http://localhost:9001 (admin: `minioadmin` / `minioadmin`)
-- Prometheus: http://localhost:9090
-- Elasticsearch: http://localhost:9200 (admin: `elastic` / `elasticadmin`)
-- Marimo: http://localhost:2718
-- Jupyter: http://localhost:8888
+```bash
+docker compose --profile on-demand up -d
+```
+
+5. **Acceder a los servicios:**
+
+- MLflow: <http://localhost:5000>
+- MinIO Console: <http://localhost:9001>
+- Marimo: <http://localhost:2718>
+- Jupyter: <http://localhost:8888>
+
+**Solo con perfil on-demand:**
+
+- Grafana: <http://localhost:3000>
+- Prometheus: <http://localhost:9090>
+- Elasticsearch: <http://localhost:9200>
+- API: <http://localhost:8000>
 
 ## 📁 Estructura del Proyecto
 
@@ -61,8 +73,7 @@ stackML/
 │   ├── jupyter/           # Setup de Jupyter
 │   ├── marimo/            # Setup de Marimo
 │   └── work/              # Directorio compartido de trabajo
-├── docker-compose.yml     # Configuración principal
-└── .env                   # Variables de entorno
+└── docker-compose.yml     # Configuración principal
 ```
 
 ## 🔧 Configuración
@@ -75,6 +86,40 @@ Las credenciales y configuraciones están centralizadas en el archivo `.env`:
 - **Credenciales:** Usuarios y contraseñas por defecto
 - **Versiones:** Imágenes Docker específicas para cada servicio
 
+#### Template del archivo .env
+
+Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
+
+```bash
+# Ports - Configuración de puertos para cada servicio
+MINIO_CONSOLE_PORT=9001
+MINIO_PORT=9000
+GRAFANA_PORT=3000
+PROMETHEUS_PORT=9090
+ELASTIC_PORT=9200
+
+# Versions - Versiones de las imágenes Docker
+MINIO_IMAGE=minio/minio:latest
+GRAFANA_IMAGE=grafana/grafana:latest
+PROMETHEUS_IMAGE=prom/prometheus:latest
+ELASTIC_IMAGE=elasticsearch:8.8.0
+
+# Credentials - Usuarios y contraseñas (¡CAMBIAR EN PRODUCCIÓN!)
+MINIO_ROOT_USER=minio
+MINIO_ROOT_PASSWORD=minioadmin123
+ELASTIC_USERNAME=elastic
+ELASTIC_PASSWORD=elasticadmin123
+GF_SECURITY_ADMIN_USER=grafana
+GF_SECURITY_ADMIN_PASSWORD=grafanaadmin123
+JUPYTER_PASSWORD=jupyteradmin123
+MARIMO_PASSWORD=marimoadmin123
+
+# Compose - Configuración de Docker Compose
+COMPOSE_PROJECT_NAME=stackml
+```
+
+> ⚠️ **Importante**: Cambia todas las contraseñas antes de usar en producción.
+
 ### Datos Persistentes
 
 Todos los datos se almacenan en la carpeta `data/` y persisten entre reinicios:
@@ -86,11 +131,29 @@ Todos los datos se almacenan en la carpeta `data/` y persisten entre reinicios:
 - `data/prometheus/` - Métricas históricas
 - `notebooks/work/` - Notebooks compartidos
 
+### Perfiles de Docker Compose
+
+El proyecto utiliza perfiles para optimizar el uso de recursos:
+
+- **Por defecto**: Solo servicios esenciales (MLflow, MinIO, Marimo, Jupyter)
+- **Perfil `on-demand`**: Servicios adicionales de monitoreo e inferencia
+
+```bash
+# Solo servicios básicos
+docker compose up -d
+
+# Todos los servicios
+docker compose --profile on-demand up -d
+```
+
 ## 🔄 Comandos Útiles
 
 ```bash
-# Levantar todos los servicios
+# Levantar solo servicios básicos
 docker compose up -d
+
+# Levantar todos los servicios (incluyendo on-demand)
+docker compose --profile on-demand up -d
 
 # Ver logs de un servicio específico
 docker compose logs -f mlflow
@@ -101,16 +164,22 @@ docker compose down
 # Rebuild y levantar
 docker compose up --build -d
 
+# Rebuild con perfil on-demand
+docker compose --profile on-demand up --build -d
+
 # Ver estado de los contenedores
 docker compose ps
 ```
 
 ## 🛡️ Seguridad
 
-- Elasticsearch configurado con autenticación básica
-- Grafana con usuario administrador configurado
-- MinIO con credenciales personalizables
+- **Elasticsearch** configurado con autenticación básica (user: `elastic`)
+- **Grafana** con usuario administrador configurado (user: `grafana`)
+- **MinIO** con credenciales personalizables (user: `minio`)
+- **Jupyter** protegido con token de acceso
+- **Marimo** protegido con contraseña
 - Red interna Docker para comunicación entre servicios
+- Todas las credenciales configurables via archivo `.env`
 
 ## 📊 Monitoreo
 
@@ -152,6 +221,17 @@ docker compose ps
 3. Commit tus cambios (`git commit -am 'Agregar nueva feature'`)
 4. Push a la branch (`git push origin feature/nueva-feature`)
 5. Crear un Pull Request
+
+## 🤖 Desarrollo Asistido
+
+Este proyecto fue desarrollado con la asistencia de **Claude 4 Sonnet** (Anthropic), que ayudó en:
+
+- 🏗️ **Arquitectura del stack**: Diseño de la estructura de servicios MLOps
+- ⚙️ **Configuración de Docker**: Optimización de Dockerfiles y docker-compose
+- 📦 **Gestión de dependencias**: Organización y actualización de requirements
+- 🔧 **Perfiles on-demand**: Implementación del sistema de contenedores dinámicos
+- 📚 **Documentación**: Redacción de README y mejores prácticas
+- 🛡️ **Seguridad**: Configuración de autenticación y variables de entorno
 
 ## 📄 Licencia
 
