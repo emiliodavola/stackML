@@ -29,6 +29,8 @@ services:
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
     restart: unless-stopped
+    profiles:
+      - on-demand
 
   grafana:
     image: ${GRAFANA_IMAGE}
@@ -46,6 +48,8 @@ services:
     depends_on:
       - prometheus
     restart: unless-stopped
+    profiles:
+      - on-demand
 
   elasticsearch:
     image: ${ELASTIC_IMAGE}
@@ -63,6 +67,8 @@ services:
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     restart: unless-stopped
+    profiles:
+      - on-demand
 
   mlflow:
     build:
@@ -129,6 +135,8 @@ services:
       - "8000:8000"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
+    profiles:
+      - on-demand
 
 networks:
   default:
