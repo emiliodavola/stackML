@@ -105,7 +105,9 @@ services:
     volumes:
       - ./notebooks/work:/app
       - ./data/marimo:/home/marimo/.local/share/marimo
-    command: ["marimo", "edit", "/app", "--host", "0.0.0.0", "--port", "2718", "--no-token"]
+    environment:
+      - MARIMO_PASSWORD=${MARIMO_PASSWORD}
+    command: ["marimo", "edit", "/app", "--host", "0.0.0.0", "--port", "2718", "--token-password", "${MARIMO_PASSWORD}"]
     depends_on:
       - mlflow
     restart: unless-stopped
@@ -118,12 +120,13 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - ./notebooks/work:/home/jovyan/work
-      - ./data/jupyter:/home/jovyan/.jupyter
-      - ./data/jupyter/lab:/home/jovyan/.local/share/jupyter/lab
-    command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token= --ServerApp.password= --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
+      - ./notebooks/work:/app/work
+      - ./data/jupyter:/app/.jupyter
+      - ./data/jupyter/lab:/app/.local/share/jupyter/lab
     environment:
       - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=${JUPYTER_PASSWORD}
+    command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token=${JUPYTER_PASSWORD} --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
     restart: unless-stopped
 
   api:
