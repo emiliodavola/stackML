@@ -10,6 +10,7 @@ Un stack completo de MLOps con Docker Compose que incluye servicios para experim
 - **MinIO** (puertos 9000/9001) - Almacenamiento de objetos compatible con S3
 - **Marimo** (puerto 2718) - Notebooks interactivos modernos
 - **Jupyter** (puerto 8888) - Notebooks tradicionales de Jupyter
+- **RStudio** (puerto 8787) - IDE completo para R con soporte para Data Science
 
 ### Servicios On-Demand (requieren perfil específico)
 
@@ -22,16 +23,35 @@ Un stack completo de MLOps con Docker Compose que incluye servicios para experim
 
 ### Inicio Rápido
 
+#### Opción 1: Script automatizado (recomendado)
+
+```bash
+# Linux/macOS
+./setup.sh
+
+# Windows PowerShell  
+.\setup.ps1
+```
+
+#### Opción 2: Configuración manual
+
 1. **Clonar el repositorio:**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/emiliodavola/stackML.git
 cd stackML
 ```
 
 2. **Crear archivo de configuración:**
 
-Crea un archivo `.env` usando el template de la sección [Variables de Entorno](#variables-de-entorno-env).
+Copia el archivo de ejemplo y personaliza las variables:
+
+```bash
+cp .env.example .env
+# Edita el archivo .env con tus configuraciones personalizadas
+```
+
+O crea un archivo `.env` manualmente usando el template de la sección [Variables de Entorno](#variables-de-entorno-env).
 
 3. **Levantar servicios básicos:**
 
@@ -51,6 +71,7 @@ docker compose --profile on-demand up -d
 - MinIO Console: <http://localhost:9001>
 - Marimo: <http://localhost:2718>
 - Jupyter: <http://localhost:8888>
+- RStudio: <http://localhost:8787>
 
 **Solo con perfil on-demand:**
 
@@ -63,8 +84,11 @@ docker compose --profile on-demand up -d
 
 ```
 stackML/
-├── api/                    # API FastAPI para servir modelos
-├── config/                 # Configuraciones de servicios
+├── .env.example           # Template de variables de entorno
+├── setup.sh               # Script de configuración (Linux/macOS)
+├── setup.ps1              # Script de configuración (Windows)
+├── api/                   # API FastAPI para servir modelos
+├── config/                # Configuraciones de servicios
 │   ├── grafana/           # Configuración de Grafana
 │   └── prometheus/        # Configuración de Prometheus
 ├── data/                  # Volúmenes de datos persistentes
@@ -72,6 +96,7 @@ stackML/
 ├── notebooks/             # Configuración de notebooks
 │   ├── jupyter/           # Setup de Jupyter
 │   ├── marimo/            # Setup de Marimo
+│   ├── rstudio/           # Setup de RStudio
 │   └── work/              # Directorio compartido de trabajo
 └── docker-compose.yml     # Configuración principal
 ```
@@ -86,6 +111,14 @@ Las credenciales y configuraciones están centralizadas en el archivo `.env`:
 - **Credenciales:** Usuarios y contraseñas por defecto
 - **Versiones:** Imágenes Docker específicas para cada servicio
 
+#### Configuración rápida
+
+Usa el archivo de ejemplo incluido en el repositorio:
+
+```bash
+cp .env.example .env
+```
+
 #### Template del archivo .env
 
 Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
@@ -97,6 +130,11 @@ MINIO_PORT=9000
 GRAFANA_PORT=3000
 PROMETHEUS_PORT=9090
 ELASTIC_PORT=9200
+MLFLOW_PORT=5000
+JUPYTER_PORT=8888
+MARIMO_PORT=2718
+API_PORT=8000
+RSTUDIO_PORT=8787
 
 # Versions - Versiones de las imágenes Docker
 MINIO_IMAGE=minio/minio:latest
@@ -113,12 +151,18 @@ GF_SECURITY_ADMIN_USER=grafana
 GF_SECURITY_ADMIN_PASSWORD=grafanaadmin123
 JUPYTER_PASSWORD=jupyteradmin123
 MARIMO_PASSWORD=marimoadmin123
+RSTUDIO_PASSWORD=rstudio
 
 # Compose - Configuración de Docker Compose
 COMPOSE_PROJECT_NAME=stackml
+
+# Configs
+RSTUDIO_DISABLE_AUTH=false
 ```
 
 > ⚠️ **Importante**: Cambia todas las contraseñas antes de usar en producción.
+
+> 💡 **Tip**: El archivo `.env.example` incluido en el repositorio contiene todas las variables necesarias con valores por defecto. Solo cópialo como `.env` y personaliza según tus necesidades.
 
 ### Datos Persistentes
 
@@ -129,13 +173,14 @@ Todos los datos se almacenan en la carpeta `data/` y persisten entre reinicios:
 - `data/elasticsearch/` - Índices y datos
 - `data/minio/` - Objetos almacenados
 - `data/prometheus/` - Métricas históricas
+- `data/rstudio/` - Configuraciones y datos de RStudio
 - `notebooks/work/` - Notebooks compartidos
 
 ### Perfiles de Docker Compose
 
 El proyecto utiliza perfiles para optimizar el uso de recursos:
 
-- **Por defecto**: Solo servicios esenciales (MLflow, MinIO, Marimo, Jupyter)
+- **Por defecto**: Solo servicios esenciales (MLflow, MinIO, Marimo, Jupyter, RStudio)
 - **Perfil `on-demand`**: Servicios adicionales de monitoreo e inferencia
 
 ```bash
