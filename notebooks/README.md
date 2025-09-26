@@ -13,6 +13,9 @@ notebooks/
 ├── marimo/               # Configuración Marimo
 │   ├── Dockerfile        # Imagen personalizada  
 │   └── requirements.txt  # Dependencias Python
+├── rstudio/              # Configuración RStudio Server
+│   ├── Dockerfile        # Imagen personalizada
+│   └── requirements.txt  # Dependencias adicionales
 └── work/                 # Notebooks y archivos de trabajo
 ```
 
@@ -40,6 +43,17 @@ notebooks/
 - **Deployment**: Apps web interactivas
 - **Performance**: Ejecución optimizada
 
+### RStudio Server
+
+**Puerto**: 8787  
+**Acceso**: <http://localhost:8787>
+
+- **Interfaz**: IDE completo para R
+- **Credenciales**: Usuario `rstudio` / Password `rstudio`
+- **Paquetes**: Tidyverse, tidymodels, xgboost preinstalados
+- **Integración**: Soporte para Python via reticulate
+- **MLOps**: Conexión directa con MLflow
+
 ## 🔧 Configuración
 
 ### Variables de Entorno
@@ -50,6 +64,8 @@ Ambos servicios tienen acceso a:
 MLFLOW_TRACKING_URI=http://mlflow:5000
 JUPYTER_ENABLE_LAB=yes
 MARIMO_SERVER_PORT=2718
+RSTUDIO_PORT=8787
+RSTUDIO_PASSWORD=rstudio
 ```
 
 ### Dependencias Compartidas

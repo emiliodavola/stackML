@@ -76,7 +76,7 @@ services:
       dockerfile: Dockerfile
     container_name: mlflow
     ports:
-      - "5000:5000"
+      - "${MLFLOW_PORT}:5000"
     volumes:
       - mlflow_data:/mlflow
     environment:
@@ -101,7 +101,7 @@ services:
       dockerfile: Dockerfile
     container_name: marimo
     ports:
-      - "2718:2718"
+      - "${MARIMO_PORT}:2718"
     volumes:
       - ./notebooks/work:/app
       - ./data/marimo:/home/marimo/.local/share/marimo
@@ -118,7 +118,7 @@ services:
       dockerfile: Dockerfile
     container_name: jupyter
     ports:
-      - "8888:8888"
+      - "${JUPYTER_PORT}:8888"
     volumes:
       - ./notebooks/work:/app/work
       - ./data/jupyter:/app/.jupyter
@@ -129,13 +129,28 @@ services:
     command: 'jupyter server --ip=0.0.0.0 --allow-root --ServerApp.token=${JUPYTER_PASSWORD} --ServerApp.allow_origin=* --ServerApp.disable_check_xsrf=True --no-browser'
     restart: unless-stopped
 
+  rstudio:
+    build:
+      context: ./notebooks/rstudio
+      dockerfile: Dockerfile
+    container_name: rstudio
+    ports:
+      - "${RSTUDIO_PORT}:8787"
+    volumes:
+      - ./notebooks/work:/home/rstudio/work
+      - ./data/rstudio:/home/rstudio/data
+    environment:
+      - PASSWORD=${RSTUDIO_PASSWORD}
+      - DISABLE_AUTH=${RSTUDIO_DISABLE_AUTH:-false}
+    restart: unless-stopped
+
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
     container_name: api
     ports:
-      - "8000:8000"
+      - "${API_PORT}:8000"
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
     profiles:
